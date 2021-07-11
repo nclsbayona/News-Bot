@@ -2,7 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 from getNews import getLatestNews, printArticle
-
+from web_alive import keep_alive
 
 api_key = os.environ['NEWS_API_KEY']
 
@@ -55,4 +55,5 @@ class News_Bot_Client(discord.Client):
     await self.wait_until_ready()
 
 client = News_Bot_Client(api_key, int(channel_id), "co")
+keep_alive()
 client.run(bot_token)
