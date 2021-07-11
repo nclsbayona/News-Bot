@@ -38,6 +38,7 @@ class News_Bot_Client(discord.Client):
       the_news=getLatestNews(self.country_code, self.api_key)
       if (len(self.latest_news)==0):
         self.latest_news=the_news
+        await (self.channel).send("Total amount of articles here: "+str(len(the_news)))
         for (msg) in (the_news):
           await (self.channel).send(printArticle(msg))
       elif (the_news!=self.latest_news):
@@ -48,9 +49,10 @@ class News_Bot_Client(discord.Client):
             self.latest_news.insert(0, art)
             if (len(self.latest_news)>1):
               self.latest_news.pop()
+        await (self.channel).send("Total amount of articles here: "+str(len(new_news)))
         for (msg) in (new_news):
           await (self.channel).send(printArticle(msg))
-        await (self.channel).send('\n')
+        await (self.channel).send("Done")
   
     except:
       await (self.channel).send("Please update country code")
