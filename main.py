@@ -1,5 +1,6 @@
 import os
 import discord
+from traceback import print_exc
 from discord.ext import tasks
 from getNews import getLatestNews, printArticle
 from datetime import datetime
@@ -38,17 +39,16 @@ class News_Bot_Client(discord.Client):
       await (self.channel).send("Current Time ="+ current_time+'\n'+"The news at the moment are:\n")
       self.counter+=1
       the_news=getLatestNews(self.country_code, self.api_key)
-      new_news=None
+      new_news=the_news
       if (self.counter==1):
         self.latest_news=the_news
-        new_news=self.latest_news
       else:
         new_news=list()
         for (artic) in (the_news):
           if (artic not in self.latest_news):
             self.latest_news.append(artic)
             new_news.append(artic)
-      for (art, i) in enumerate(new_news):
+      for (i, art) in enumerate(new_news):
         await (self.channel).send("Article #"+str(i)+'\n'+printArticle(art))
 
       # Reset latest_news if it's a new day
@@ -57,6 +57,7 @@ class News_Bot_Client(discord.Client):
         self.latest_news.clear()
   
     except:
+      print_exc()
       await (self.channel).send("Please update country code")
       
   @getLatest.before_loop
