@@ -14,6 +14,7 @@ bot_token = os.environ['BOT_TOKEN']
 class News_Bot_Client(discord.Client):
   def __init__(self, api_key, channel_id:int, country_code="us", *args, **kwargs):
     super().__init__(*args, **kwargs)
+    self.counter=0
     self.channel_id=channel_id
     self.channel=None
     self.country_code=country_code
@@ -34,25 +35,26 @@ class News_Bot_Client(discord.Client):
         raise Exception()
       now = datetime.now()
       current_time = now.strftime("%H:%M:%S")
-      await (self.channel).send("Current Time ="+ current_time)
+      await (self.channel).send("Current Time ="+ current_time+'\n'+"The news at the moment are:\n")
+      self.counter+=1
       the_news=getLatestNews(self.country_code, self.api_key)
-      if (len(self.latest_news)==0):
+      new_news=None
+      if (self.counter==1):
         self.latest_news=the_news
-        await (self.channel).send("Total amount of articles here: "+str(len(the_news)))
-        for (msg) in (the_news):
-          await (self.channel).send(printArticle(msg))
-      elif (the_news!=self.latest_news):
+        new_news=self.latest_news
+      else:
         new_news=list()
-        for (art) in (the_news):
-          if (art not in self.latest_news):
-            new_news.insert(0, art)
-            self.latest_news.insert(0, art)
-            if (len(self.latest_news)>1):
-              self.latest_news.pop()
-        await (self.channel).send("Total amount of articles here: "+str(len(new_news)))
-        for (msg) in (new_news):
-          await (self.channel).send(printArticle(msg))
-        await (self.channel).send("Done")
+        for (artic) in (the_news):
+          if (artic not in self.latest_news):
+            self.latest_news.append(artic)
+            new_news.append(artic)
+      for (art, i) in enumerate(new_news):
+        await (self.channel).send("Article #"+str(i)+'\n'+printArticle(art))
+
+      # Reset latest_news if it's a new day
+      self.counter%=24
+      if (self.counter==0):
+        self.latest_news.clear()
   
     except:
       await (self.channel).send("Please update country code")
