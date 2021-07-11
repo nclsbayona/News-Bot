@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import tasks
 from getNews import getLatestNews, printArticle
+from datetime import datetime
 from web_alive import keep_alive
 
 api_key = os.environ['NEWS_API_KEY']
@@ -26,11 +27,14 @@ class News_Bot_Client(discord.Client):
 
   @tasks.loop(hours=1) 
   async def getLatest(self):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
     try:
       if (self.channel is None):
         self.channel=self.get_channel(self.channel_id)
       if (self.country_code==""):
         raise Exception()
+      await (self.channel).send("Current Time ="+ current_time)
       the_news=getLatestNews(self.country_code, self.api_key)
       if (len(self.latest_news)==0):
         self.latest_news=the_news
@@ -46,6 +50,7 @@ class News_Bot_Client(discord.Client):
               self.latest_news.pop()
         for (msg) in (new_news):
           await (self.channel).send(printArticle(msg))
+        await (self.channel).send('\n')
   
     except:
       await (self.channel).send("Please update country code")

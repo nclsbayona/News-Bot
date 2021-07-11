@@ -17,7 +17,6 @@ def printArticle(article: dict) -> str:
     ret+="Title:"+ str(article.get("title"))+"\n"
     ret+="Description:"+ str(article.get("description"))+"\n"
     ret+="Url:"+ str(article.get("url"))+"\n"
-    ret+="Image Url:"+ str(article.get("urlToImage"))+"\n"
     ret+="Publish date:"+ str(article.get("publishedAt"))+"\n"
     return ret
 
