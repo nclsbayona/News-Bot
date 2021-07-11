@@ -27,13 +27,13 @@ class News_Bot_Client(discord.Client):
 
   @tasks.loop(hours=1) 
   async def getLatest(self):
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
     try:
       if (self.channel is None):
         self.channel=self.get_channel(self.channel_id)
       if (self.country_code==""):
         raise Exception()
+      now = datetime.now()
+      current_time = now.strftime("%H:%M:%S")
       await (self.channel).send("Current Time ="+ current_time)
       the_news=getLatestNews(self.country_code, self.api_key)
       if (len(self.latest_news)==0):
