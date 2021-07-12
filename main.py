@@ -1,6 +1,5 @@
 import os
 import discord
-from traceback import print_exc
 from discord.ext import tasks
 from getNews import getLatestNews, printArticle
 from datetime import datetime
@@ -27,17 +26,21 @@ class News_Bot_Client(discord.Client):
     print(f'Logged in as {self.user} (ID: {self.user.id})')
     print('------')
 
-  @tasks.loop(hours=1) 
+  @tasks.loop(hours=2) 
   async def getLatest(self):
     try:
-      if (self.channel is None):
-        self.channel=self.get_channel(self.channel_id)
       if (self.country_code==""):
         raise Exception()
       now = datetime.now()
       current_time = now.strftime("%H:%M:%S")
       await (self.channel).send("Current Time ="+ current_time+'\n'+"The news at the moment are:\n")
       self.counter+=1
+      # Reset latest_news if it's a new day
+      self.counter%=24
+      if (self.counter==0):
+        self.latest_news.clear()
+        # Delete all messages
+        await (self.channel).purge(limit=100000)
       the_news=getLatestNews(self.country_code, self.api_key)
       new_news=the_news
       if (self.counter==1):
@@ -49,20 +52,16 @@ class News_Bot_Client(discord.Client):
             self.latest_news.append(artic)
             new_news.append(artic)
       for (i, art) in enumerate(new_news):
-        await (self.channel).send("Article #"+str(i)+'\n'+printArticle(art))
-
-      # Reset latest_news if it's a new day
-      self.counter%=24
-      if (self.counter==0):
-        self.latest_news.clear()
+        await (self.channel).send("Article #"+str(i+1)+'\n'+printArticle(art))
   
     except:
-      print_exc()
       await (self.channel).send("Please update country code")
       
   @getLatest.before_loop
   async def before_getLatest(self):
     await self.wait_until_ready()
+    self.channel=self.get_channel(self.channel_id)
+    await (self.channel).purge(limit=100000)
 
 client = News_Bot_Client(api_key, int(channel_id), "co")
 keep_alive()
