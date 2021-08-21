@@ -1,25 +1,30 @@
 import os
 import discord
 from discord.ext import tasks
-from getNews import getLatestNews, printArticle
+from getNews import getLatestNews, printArticle, getXataka_GenbetaNews
 from datetime import datetime
 from web_alive import keep_alive
 
 api_key = os.environ['NEWS_API_KEY']
 
-channel_id = os.environ['CHANNEL_ID']
+general_channel_id = os.environ['CHANNEL_ID']
 
 bot_token = os.environ['BOT_TOKEN']
 
+tech_channel_id = os.environ['TECH_CHANNEL_ID']
+
 class News_Bot_Client(discord.Client):
-  def __init__(self, api_key, channel_id:int, country_code="us", *args, **kwargs):
+  def __init__(self, api_key, general_channel_id:int, tech_channel_id:int, country_code="us", *args, **kwargs):
     super().__init__(*args, **kwargs)
     self.counter=0
-    self.channel_id=channel_id
+    self.channel_id=general_channel_id
+    self.tech_channel_id=tech_channel_id
+    self.tech_channel=None
     self.channel=None
     self.country_code=country_code
     self.api_key=api_key
     self.latest_news=list()
+    self.tech_news=list()
     self.getLatest.start()
   
   async def on_ready(self):
@@ -38,7 +43,7 @@ class News_Bot_Client(discord.Client):
       # Reset latest_news if it's a new day
       self.counter%=24
       if (self.counter==0):
-        self.latest_news.clear()
+        self.latest_news=await self.getTech()
         # Delete all messages
         await (self.channel).purge(limit=100000)
       the_news=getLatestNews(self.country_code, self.api_key)
@@ -56,13 +61,25 @@ class News_Bot_Client(discord.Client):
   
     except:
       await (self.channel).send("Please update country code")
-      
+
+  async def getTech(self):
+    await (self.tech_channel).purge(limit=100000)
+    now = datetime.date(datetime.now()).today()
+    the_news=getXataka_GenbetaNews(self.api_key)
+    await (self.tech_channel).send("Current Day ="+ str(now)+'\n'+"The {} tech news at the moment are:\n".format(len(the_news)))
+    for (i, art) in enumerate(the_news):
+      await (self.tech_channel).send("Article #"+str(i+1)+'\n'+printArticle(art))
+    return the_news
+
   @getLatest.before_loop
   async def before_getLatest(self):
     await self.wait_until_ready()
     self.channel=self.get_channel(self.channel_id)
     await (self.channel).purge(limit=100000)
+    self.tech_channel=self.get_channel(self.tech_channel_id)
+    await (self.tech_channel).purge(limit=100000)
+    self.latest_news=await self.getTech()
 
-client = News_Bot_Client(api_key, int(channel_id), "co")
+client = News_Bot_Client(api_key, int(general_channel_id), int(tech_channel_id), "co")
 keep_alive()
 client.run(bot_token)

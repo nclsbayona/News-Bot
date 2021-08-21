@@ -9,6 +9,13 @@ def getLatestNews(country_code: str, api_key: str) -> list:
     ).json()
     return list(the_news.get("articles"))
 
+def getXataka_GenbetaNews(api_key:str):
+  the_news = requests.get(
+        "https://newsapi.org/v2/everything?domains=xataka.com,genbeta.com&apiKey={}".format(
+            api_key
+        )
+    ).json()
+  return list(the_news.get("articles"))
 
 def printArticle(article: dict) -> str:
     ret="\n"
