@@ -12,7 +12,7 @@ on:
     branches: [ main ]
   workflow_dispatch:
   schedule:
-    - cron: "*/20 * * * *"
+    - cron: "*/10 * * * *"
     
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -25,8 +25,6 @@ jobs:
     steps:
 
       - name: Ping URL
-     # You may pin to the exact commit or the version.
-     # uses: nerdify/ping-action@f8e5eb1e44352ccde96dff6c55b0d3e6d21e2325
-        uses: nclsbayona/Ping-action@1.0.0
+        uses: sisodiya2421/pinger@master
         env:
-            PING_URL: https://News-Bot.nclsbayona.repl.co
+            URL: News-Bot.nclsbayona.repl.co
