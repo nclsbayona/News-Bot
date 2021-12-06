@@ -2,10 +2,10 @@ name: Bot Status
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
-  schedule: 
+    branches: [ master ]
+  schedule:
     - cron: "*/20 * * * *"
   
 jobs:
